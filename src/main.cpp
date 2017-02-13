@@ -22,26 +22,76 @@ SOFTWARE.
 
 #include <tcb/sudoku.hpp>
 
+#include <chrono>
 #include <iostream>
 #include <iterator>
 #include <fstream>
 
-int main(int argc, char** argv)
-{
-    if (argc < 2) {
-        std::cout << "Give me a puzzle!\n";
-        return 1;
+struct timer {
+    using clock_type = std::chrono::high_resolution_clock;
+
+    timer() = default;
+
+    template <typename DurationType = std::chrono::microseconds>
+    DurationType elapsed() const
+    {
+        return std::chrono::duration_cast<DurationType>(clock_type::now() - start_);
     }
 
-    std::ifstream file{argv[1]};
+private:
+    clock_type::time_point start_ = clock_type::now();
+};
 
-    std::string str(std::istream_iterator<char>{file}, std::istream_iterator<char>{});
+auto solve_one(const tcb::sudoku::grid& grid, bool interactive)
+{
+    timer t{};
+    auto solution = tcb::sudoku::solve(grid);
+    auto e = t.elapsed();
 
-    auto grid = tcb::sudoku::grid::parse(str);
+    if (interactive) {
+        std::cout << grid << "\n\n";
 
-    std::cout << *grid << std::endl;
+        if (solution) {
+            std::cout << *solution << "\n";
+        }
+        else {
+            std::cout << "Could not find solution\n";
+        }
+        std::cout << e.count() / 1000.00 << "ms elapsed\n";
+    }
 
-    auto out_grid = tcb::sudoku::solve(*grid);
+    return e;
+}
 
-    std::cout << *out_grid << std::endl;
+auto solve_from_stream(std::istream& stream, bool interactive)
+{
+    std::string s;
+    std::chrono::microseconds total_elapsed{};
+    int num_solved = 0;
+    while(std::getline(stream, s)) {
+        auto grid = tcb::sudoku::grid::parse(s);
+        if (!grid) {
+            continue;
+        }
+        total_elapsed += solve_one(*grid, interactive);
+        ++num_solved;
+    }
+
+    return std::make_pair(num_solved, total_elapsed);
+}
+
+int main(int argc, char** argv)
+{
+    std::chrono::microseconds total_elapsed{};
+    int num_solved = 0;
+
+    if (argc == 1) {
+        std::tie(num_solved, total_elapsed) = solve_from_stream(std::cin, true);
+    } else {
+        std::ifstream file{argv[1]};
+        std::tie(num_solved, total_elapsed) = solve_from_stream(file, false);
+    }
+
+    std::cout << "Solved " << num_solved << " puzzles in " << total_elapsed.count()/1000.0 << "ms\n";
+    std::cout << "(Average " << total_elapsed.count()/(1000.0 * num_solved) << "ms per puzzle)\n";
 }
