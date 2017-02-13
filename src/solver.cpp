@@ -23,32 +23,14 @@ SOFTWARE.
 #include <tcb/sudoku.hpp>
 #include "tables.hpp"
 
-#include <range/v3/algorithm/all_of.hpp>
-#include <range/v3/algorithm/for_each.hpp>
-#include <range/v3/algorithm/min_element.hpp>
-#include <range/v3/algorithm/transform.hpp>
-#include <range/v3/range_for.hpp>
-#include <range/v3/view/all.hpp>
-#include <range/v3/view/iota.hpp>
-#include <range/v3/view/remove_if.hpp>
-#include <range/v3/view/transform.hpp>
-#include <range/v3/view/zip.hpp>
-
 
 namespace tcb {
 namespace sudoku {
 
-namespace rng = ranges::v3;
 using std::experimental::optional;
 using std::experimental::nullopt;
 
 namespace {
-
-template <class Rng, CONCEPT_REQUIRES_(rng::Range<Rng>())>
-auto enumerate(Rng&& range)
-{
-    return rng::view::zip(rng::view::ints, std::forward<Rng>(range));
-}
 
 const auto& get_peers(int index)
 {
@@ -105,9 +87,17 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool;
 
 auto assign(puzzle_t& p, int index, int value) -> bool
 {
-    auto is_value = [value] (int i) { return i == value; };
-    return rng::all_of(rng::view::ints(1, 10) | rng::view::remove_if(is_value),
-                       [&] (int i) { return eliminate(p, index, i); });
+    for (int i = 0; i < 10; i++) {
+        if (i == value) {
+            continue;
+        }
+
+        if (!eliminate(p, index, i)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 auto eliminate(puzzle_t& p, int index, int value) -> bool
@@ -127,37 +117,46 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
     }
     if (cell.count() == 1) {
         const auto d = cell.get_value();
-        const auto& peers = get_peers(index);
-        if (!rng::all_of(peers, [&](auto peer) { return eliminate(p, peer, d); })) {
-            return false;
+        for (int peer : get_peers(index)) {
+            if (!eliminate(p, peer, d)) {
+                return false;
+            }
         }
     }
 
     // If a unit u is reduced to only one place for a value, then put it there.
     const auto& units = { get_row(index), get_column(index), get_box(index) };
-    return rng::all_of(units, [&] (const auto& u) {
-        auto places = rng::view::all(u) | rng::view::remove_if([&](auto idx) {
-            return !p[idx].could_be(value);
-        });
-
-        const auto size = rng::distance(places);
-
-        if (size == 0) {
+    for (const auto& unit : units) {
+        int num_places = 0;
+        int first_place = -1;
+        for (int place : unit) {
+            if (p[place].could_be(value)) {
+                num_places++;
+                if (first_place == -1) {
+                    first_place = place;
+                }
+            }
+        }
+        if (num_places == 0) {
             return false;
         }
-        if (size == 1) {
-            return assign(p, *rng::begin(places), value);
+        if (num_places == 1) {
+            if (!assign(p, first_place, value)) {
+                return false;
+            }
         }
-        return true;
-    });
+    }
+
+    return true;
 }
 
 auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
 {
     auto puzzle = puzzle_t{};
-    RANGES_FOR(const auto& pair, enumerate(g)) {
-        if (pair.second != '.') {
-            if (!assign(puzzle, pair.first, pair.second - '0')) {
+    for (int i = 0; i < 81; i++) {
+        char c = *(g.begin() + i);
+        if (c != '.') {
+            if (!assign(puzzle, i, c - '0')) {
                 return nullopt;
             }
         }
@@ -168,57 +167,60 @@ auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
 auto puzzle_to_grid(const puzzle_t& p) -> grid
 {
     std::array<char, 81> array;
-    rng::transform(p, rng::begin(array), [&] (const cell_t& c) {
+    for (int i = 0; i < 81; i++) {
+        const cell_t& c = p[i];
         if (c.count() > 1) {
-            return '.';
+            array[i] = '.';
         } else {
-            return static_cast<char>(c.get_value() + '0');
+            array[i] = static_cast<char>(c.get_value() + '0');
         }
-    });
+    }
 
     return std::move(*grid::parse({array.data(), 81}));
+}
+
+bool is_solved(const puzzle_t& p)
+{
+    for (const auto& c : p) {
+        if (c.count() != 1) {
+            return false;
+        }
+    }
+    return true;
 }
 
 auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
 {
     // If all cells have only one possibility, we're done
-    if (rng::all_of(p, [](const auto& c) { return c.count() == 1; })) {
+    if (is_solved(p)) {
         return std::move(p);
     }
 
-    // Otherwise, make a list of indices that have more than one possibility
-    auto non_fixed_cells = rng::view::ints(0, 81) | rng::view::remove_if([&](int i) {
-        return p[i].count() == 1;
-    });
 
-    // Choose one of the elements with the fewest possibilities
-    auto min_idx = *rng::min_element(non_fixed_cells, [&](int idx1, int idx2) {
-        return p[idx1].count() < p[idx2].count();
-    });
-
-    // Now try each value in the range [1, 9] in the cell at min_idx
-    auto maybe_solutions = rng::view::ints(1, 10)
-            | rng::view::remove_if([&](int i) { return !p[min_idx].could_be(i); })
-            | rng::view::transform([&] (int i) {
-                // Take a new copy of the puzzle and try to assign i to the chosen index
-                auto p_copy = p;
-                // if the assignment succeeded (generated no contradictions),
-                // recursively try to solve the new puzzle
-                if (assign(p_copy, min_idx, i)) {
-                    return do_solve(p_copy);
-                }
-                return optional<puzzle_t>{};
-            });
-
-    // FIXME: We should be able to filter the above view with view::remove_if(),
-    // and then just use `if (begin(solns) != end(solns)) { return *begin(solns) }`
-    // here. But that seems to be very much slower than using a for loop, even
-    // though it should be equivalent.
-    for (auto&& opt : maybe_solutions) {
-        if (opt) {
-            return std::move(opt);
+    int min_idx = 0;
+    while (p[min_idx].count() == 1) ++min_idx;
+    for (int i = 0; i < 81; i++) {
+        if (p[i].count() == 1) {
+            continue;
+        }
+        if (p[i].count() < p[min_idx].count()) {
+            min_idx = i;
         }
     }
+
+
+    for (int i = 0; i < 10; i++) {
+        if (p[min_idx].could_be(i)) {
+            auto p_copy = p;
+            if (assign(p_copy, min_idx, i)) {
+                auto result = do_solve(p_copy);
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+
     return nullopt;
 }
 
