@@ -38,8 +38,6 @@ SOFTWARE.
 namespace tcb {
 namespace sudoku {
 
-constexpr int max_recursion_depth = 20; // Arbitrary
-
 namespace rng = ranges::v3;
 using std::experimental::optional;
 using std::experimental::nullopt;
@@ -187,13 +185,8 @@ auto puzzle_to_grid(const puzzle_t& p) -> grid
     return std::move(*grid::parse({array.data(), 81}));
 }
 
-auto do_solve(const puzzle_t& p, int depth) -> optional<puzzle_t>
+auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
 {
-    // If we have reached the maximum recursion depth, bail out
-    if (depth > max_recursion_depth) {
-        return nullopt;
-    }
-
     // If all cells have only one possibility, we're done
     if (rng::all_of(p, [](auto& c) { return c.count() == 1; })) {
         return std::move(p);
@@ -221,7 +214,7 @@ auto do_solve(const puzzle_t& p, int depth) -> optional<puzzle_t>
         if (assign(p_copy, min_idx, i)) {
             // if the assignment succeeded (generated no contradictions),
             // recursively try to solve the new puzzle
-            auto result = do_solve(p_copy, depth + 1);
+            auto result = do_solve(p_copy);
             if (result) {
                 return result;
             }
@@ -239,7 +232,7 @@ auto solve(const grid& g) -> optional<grid>
     if (!puzzle) {
         return nullopt;
     }
-    auto result = do_solve(*puzzle, 0);
+    auto result = do_solve(*puzzle);
     if (result) {
         return puzzle_to_grid(*result);
     }
