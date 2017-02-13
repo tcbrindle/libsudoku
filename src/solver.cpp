@@ -182,7 +182,7 @@ auto puzzle_to_grid(const puzzle_t& p) -> grid
 auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
 {
     // If all cells have only one possibility, we're done
-    if (rng::all_of(p, [](auto& c) { return c.count() == 1; })) {
+    if (rng::all_of(p, [](const auto& c) { return c.count() == 1; })) {
         return std::move(p);
     }
 
@@ -196,25 +196,29 @@ auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
         return p[idx1].count() < p[idx2].count();
     });
 
-    // Find the values to check
-    auto vals = rng::view::ints(1, 10) | rng::view::remove_if([&](int i) {
-        return !p[min_idx].could_be(i);
-    });
+    // Now try each value in the range [1, 9] in the cell at min_idx
+    auto maybe_solutions = rng::view::ints(1, 10)
+            | rng::view::remove_if([&](int i) { return !p[min_idx].could_be(i); })
+            | rng::view::transform([&] (int i) {
+                // Take a new copy of the puzzle and try to assign i to the chosen index
+                auto p_copy = p;
+                // if the assignment succeeded (generated no contradictions),
+                // recursively try to solve the new puzzle
+                if (assign(p_copy, min_idx, i)) {
+                    return do_solve(p_copy);
+                }
+                return optional<puzzle_t>{};
+            });
 
-    // Now for each value...
-    for (int i : vals) {
-        // ...take a new copy of the puzzle and try to assign val to the chosen index
-        auto p_copy = p;
-        if (assign(p_copy, min_idx, i)) {
-            // if the assignment succeeded (generated no contradictions),
-            // recursively try to solve the new puzzle
-            auto result = do_solve(p_copy);
-            if (result) {
-                return result;
-            }
+    // FIXME: We should be able to filter the above view with view::remove_if(),
+    // and then just use `if (begin(solns) != end(solns)) { return *begin(solns) }`
+    // here. But that seems to be very much slower than using a for loop, even
+    // though it should be equivalent.
+    for (auto&& opt : maybe_solutions) {
+        if (opt) {
+            return std::move(opt);
         }
     }
-
     return nullopt;
 }
 
