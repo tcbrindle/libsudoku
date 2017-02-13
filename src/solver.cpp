@@ -106,13 +106,8 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool;
 auto assign(puzzle_t& p, int index, int value) -> bool
 {
     auto is_value = [value] (int i) { return i == value; };
-    for (int i : rng::view::ints(1, 10) | rng::view::remove_if(is_value)) {
-        if (!eliminate(p, index, i)) {
-            return false;
-        }
-    }
-
-    return true;
+    return rng::all_of(rng::view::ints(1, 10) | rng::view::remove_if(is_value),
+                       [&] (int i) { return eliminate(p, index, i); });
 }
 
 auto eliminate(puzzle_t& p, int index, int value) -> bool
@@ -140,7 +135,7 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
 
     // If a unit u is reduced to only one place for a value, then put it there.
     const auto& units = { get_row(index), get_column(index), get_box(index) };
-    for (const auto& u : units) {
+    return rng::all_of(units, [&] (const auto& u) {
         auto places = rng::view::all(u) | rng::view::remove_if([&](auto idx) {
             return !p[idx].could_be(value);
         });
@@ -151,11 +146,10 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
             return false;
         }
         if (size == 1) {
-            assign(p, *rng::begin(places), value);
+            return assign(p, *rng::begin(places), value);
         }
-    }
-
-    return true;
+        return true;
+    });
 }
 
 auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
