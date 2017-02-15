@@ -61,6 +61,37 @@ auto grid::parse(string_view str) -> optional<grid>
     return std::move(g);
 }
 
+auto grid::parse(std::istream& istream) -> optional<grid>
+{
+    // Annoyingly in this case, but probably with good reason,
+    // rng::view::remove_if caches the next value -- which means that in the
+    // case of input iterators, it eats up the next token. There may be a way
+    // around this but I can't think of one right now, so we'll do things the
+    // longwinded way instead
+    auto count = 0;
+    auto g = grid{};
+    auto range = rng::istream_range<char>{istream}
+            | rng::view::replace('0', '.');
+
+    RANGES_FOR(char c, range) {
+        if (c != '.' && (c < '1' || c > '9')) {
+            continue;
+        }
+
+        g.cells_[count] = c;
+
+        if (++count == 81) {
+            break;
+        }
+    }
+
+    if (count < 81) {
+        return nullopt;
+    }
+
+    return std::move(g);
+}
+
 auto operator<<(std::ostream& os, const grid& g) -> std::ostream&
 {
     // And now for some fun. What we'd like to do is this:

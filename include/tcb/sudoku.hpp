@@ -48,6 +48,9 @@ public:
     static auto
     parse(std::experimental::string_view str) -> std::experimental::optional<grid>;
 
+    static auto
+    parse(std::istream& istream) -> std::experimental::optional<grid>;
+
     /// Default constructs an empty grid of 81 '.'s.
     grid() { cells_.fill('.'); cells_.back() = '\0'; }
 
