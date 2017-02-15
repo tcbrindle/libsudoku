@@ -44,10 +44,12 @@ using std::experimental::nullopt;
 
 namespace {
 
-template <class Rng, CONCEPT_REQUIRES_(rng::Range<Rng>())>
-auto enumerate(Rng&& range)
+auto enumerate()
 {
-    return rng::view::zip(rng::view::ints, std::forward<Rng>(range));
+    return rng::make_pipeable([](auto&& range) {
+        using range_t = decltype(range);
+        return rng::view::zip(rng::view::ints, std::forward<range_t>(range));
+    });
 }
 
 const auto& get_peers(int index)
@@ -155,7 +157,7 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
 auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
 {
     auto puzzle = puzzle_t{};
-    RANGES_FOR(const auto& pair, enumerate(g)) {
+    RANGES_FOR(const auto& pair, rng::view::all(g) | enumerate()) {
         if (pair.second != '.') {
             if (!assign(puzzle, pair.first, pair.second - '0')) {
                 return nullopt;
