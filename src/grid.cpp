@@ -23,8 +23,8 @@ SOFTWARE.
 #include <tcb/sudoku.hpp>
 
 #include <range/v3/istream_range.hpp>
-#include <range/v3/range_for.hpp>
 #include <range/v3/view/all.hpp>
+#include <range/v3/view/bounded.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/intersperse.hpp>
 #include <range/v3/view/iota.hpp>
@@ -71,9 +71,10 @@ auto grid::parse(std::istream& istream) -> optional<grid>
     auto count = 0;
     auto g = grid{};
     auto range = rng::istream_range<char>{istream}
-            | rng::view::replace('0', '.');
+            | rng::view::replace('0', '.')
+            | rng::view::bounded;
 
-    RANGES_FOR(char c, range) {
+    for (char c : range) {
         if (c != '.' && (c < '1' || c > '9')) {
             continue;
         }
