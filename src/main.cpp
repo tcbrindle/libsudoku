@@ -26,6 +26,7 @@ SOFTWARE.
 #include <iostream>
 #include <iterator>
 #include <fstream>
+#include <string>
 
 struct timer {
     using clock_type = std::chrono::high_resolution_clock;

@@ -34,13 +34,15 @@ SOFTWARE.
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
+#ifdef _MSC_VER
+#include <intrin.h> 
+#endif
+
 
 namespace tcb {
 namespace sudoku {
 
 namespace rng = ranges::v3;
-using std::experimental::optional;
-using std::experimental::nullopt;
 
 namespace {
 
@@ -81,7 +83,11 @@ struct cell_t {
 
     auto count() const
     {
+#ifdef _MSC_VER
+		return __popcnt(bits);
+#else
         return __builtin_popcount(bits);
+#endif
     }
 
     int get_value() const

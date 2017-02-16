@@ -22,6 +22,7 @@ SOFTWARE.
 
 #include <tcb/sudoku.hpp>
 
+#include <range/v3/algorithm/copy.hpp>
 #include <range/v3/istream_range.hpp>
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/bounded.hpp>
@@ -39,11 +40,6 @@ namespace rng = ranges::v3;
 
 namespace tcb {
 namespace sudoku {
-
-using std::experimental::make_optional;
-using std::experimental::optional;
-using std::experimental::nullopt;
-using std::experimental::string_view;
 
 auto grid::parse(string_view str) -> optional<grid>
 {
