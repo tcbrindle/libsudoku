@@ -27,6 +27,7 @@ SOFTWARE.
 #include <range/v3/algorithm/for_each.hpp>
 #include <range/v3/algorithm/min_element.hpp>
 #include <range/v3/algorithm/transform.hpp>
+#include <range/v3/front.hpp>
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/remove_if.hpp>
@@ -147,7 +148,7 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
             return false;
         }
         if (size == 1) {
-            return assign(p, *rng::begin(places), value);
+            return assign(p, rng::front(places), value);
         }
         return true;
     });
@@ -215,7 +216,7 @@ auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
             });
 
     // FIXME: We should be able to filter the above view with view::remove_if(),
-    // and then just use `if (begin(solns) != end(solns)) { return *begin(solns) }`
+    // and then just use `if (begin(solns) != end(solns)) { return front(solns) }`
     // here. But that seems to be very much slower than using a for loop, even
     // though it should be equivalent.
     for (auto&& opt : maybe_solutions) {
