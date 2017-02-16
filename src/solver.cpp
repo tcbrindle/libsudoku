@@ -27,7 +27,6 @@ SOFTWARE.
 #include <range/v3/algorithm/for_each.hpp>
 #include <range/v3/algorithm/min_element.hpp>
 #include <range/v3/algorithm/transform.hpp>
-#include <range/v3/range_for.hpp>
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/remove_if.hpp>
@@ -157,14 +156,17 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
 auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
 {
     auto puzzle = puzzle_t{};
-    RANGES_FOR(const auto& pair, rng::view::all(g) | enumerate()) {
-        if (pair.second != '.') {
-            if (!assign(puzzle, pair.first, pair.second - '0')) {
-                return nullopt;
-            }
-        }
+    auto view = rng::view::all(g)
+                | enumerate()
+                | rng::view::remove_if([] (const auto& pair) {
+        return pair.second == '.';
+    });
+    if (rng::all_of(view, [&] (const auto& pair) {
+        return assign(puzzle, pair.first, pair.second - '0');
+    })) {
+        return std::move(puzzle);
     }
-    return std::move(puzzle);
+    return nullopt;
 }
 
 auto puzzle_to_grid(const puzzle_t& p) -> grid
