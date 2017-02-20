@@ -32,5 +32,7 @@ add_library(sudoku
 add_executable(sudoku-solver src/main.cpp)
 target_link_libraries(sudoku-solver sudoku)
 
+enable_testing()
+
 add_subdirectory(test)
 
