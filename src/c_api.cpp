@@ -33,12 +33,15 @@ struct SudokuGrid {
 
 SudokuGrid* sudoku_grid_parse(const char* str)
 {
+    if (!str) {
+        return nullptr;
+    }
+
     auto gridopt = tcb::sudoku::grid::parse(str);
     if (gridopt) {
         return new (std::nothrow) SudokuGrid{std::move(*gridopt)};
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 void sudoku_grid_free(SudokuGrid* grid)
