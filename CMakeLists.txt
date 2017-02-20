@@ -17,17 +17,15 @@ else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Werror -pedantic")
 endif()
 
-# FIXME
 find_package(Range-v3 REQUIRED)
-include_directories(${RANGE_V3_INCLUDE_DIRS})
-
-include_directories(include)
 
 add_library(sudoku
     src/c_api.cpp
     src/grid.cpp
     src/solver.cpp
     )
+target_include_directories(sudoku PUBLIC include)
+target_include_directories(sudoku PRIVATE ${RANGE_V3_INCLUDE_DIRS})
 
 add_executable(sudoku-solver src/main.cpp)
 target_link_libraries(sudoku-solver sudoku)
