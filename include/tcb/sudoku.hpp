@@ -96,6 +96,42 @@ inline bool operator!=(const grid& lhs, const grid& rhs)
     return !(lhs == rhs);
 }
 
+/// Returns true if a grid is "less than" another.
+/// One grid is considered "less than" another if it has more unknown cells.
+/// If two grids have the same number of unknown cells then the cells are
+/// compared lexicographically.
+inline bool operator<(const grid& lhs, const grid& rhs)
+{
+    const auto a = std::count(std::cbegin(lhs), std::cend(lhs), '.');
+    const auto b = std::count(std::cbegin(rhs), std::cend(rhs), '.');
+    if (a == b) {
+        return std::lexicographical_compare(std::cbegin(lhs), std::cend(lhs),
+                                            std::cbegin(rhs), std::cend(rhs));
+    }
+    return a > b;
+}
+
+/// Returns true if a grid is "greater than" another
+/// @related operator<
+inline bool operator>(const grid& lhs, const grid& rhs)
+{
+    return rhs < lhs;
+}
+
+/// Returns true if a grid is "less than or equal to" another
+/// @related operator<
+inline bool operator<=(const grid& lhs, const grid& rhs)
+{
+    return !(rhs < lhs);
+}
+
+/// Returns true if a grid is "greater than or equal to" another
+/// @related operator<
+inline bool operator>=(const grid& lhs, const grid& rhs)
+{
+    return !(lhs < rhs);
+}
+
 /// Pretty-prints a grid as a recognisable sudoku board.
 std::ostream& operator<<(std::ostream& os, const grid& g);
 
