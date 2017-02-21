@@ -32,5 +32,6 @@ target_link_libraries(sudoku-solver sudoku)
 
 enable_testing()
 
+add_subdirectory(doc)
 add_subdirectory(test)
 
