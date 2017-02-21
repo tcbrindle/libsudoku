@@ -41,32 +41,42 @@ typedef struct SudokuGrid SudokuGrid;
 
 /**
  * Parse a null-terminated string to create a new grid.
- * All characters other than ['0'-'9'] and '.' are ignored. A '0' is interpreted
- * as a '.', that is, an unknown value.
+ * All characters other than `[0-9]` and `.` are ignored. A `0` is interpreted
+ * as a `.`, that is, an unknown value.
  *
  * Will fail (returning `NULL`) if fewer than 81 valid characters could be read.
  */
-SudokuGrid* sudoku_grid_parse(const char* str);
+SudokuGrid *sudoku_grid_parse(const char *str);
+
+/**
+ * Parse a grid from `stdin`.
+ * All characters other than `[0-9]` and `.` are ignored. A `0` is interpreted
+ * as a `.`, that is, an unknown value.
+ *
+ * Will fail (returning `NULL`) if fewer than 81 valid characters could be read
+ * before encountering the end of the stream.
+ */
+SudokuGrid *sudoku_grid_scan(void);
 
 /**
  * Frees a grid created with sudoku_grid_parse() or sudoku_grid_solve()
  */
-void sudoku_grid_free(SudokuGrid* grid);
+void sudoku_grid_free(SudokuGrid *grid);
 
 /**
  * Pretty-prints a grid to stdout.
  */
-void sudoku_grid_pretty_print(const SudokuGrid* grid);
+void sudoku_grid_pretty_print(const SudokuGrid *grid);
 
 /**
  * Pretty-prints a grid to stream.
  */
-void sudoku_grid_pretty_fprint(FILE* stream, const SudokuGrid* grid);
+void sudoku_grid_pretty_fprint(FILE *stream, const SudokuGrid *grid);
 
 /**
  * Returns a string representation of grid. Do not free.
  */
-const char* sudoku_grid_to_string(const SudokuGrid* grid);
+const char *sudoku_grid_to_string(const SudokuGrid *grid);
 
 /**
  * Attempts to solve the given grid.
@@ -74,7 +84,7 @@ const char* sudoku_grid_to_string(const SudokuGrid* grid);
  * returns `NULL`. Otherwise returns the new, completed grid, which must be
  * freed with sudoku_grid_free()
  */
-SudokuGrid* sudoku_solve(const SudokuGrid* grid);
+SudokuGrid *sudoku_solve(const SudokuGrid *grid);
 
 /** @} */
 

@@ -44,6 +44,15 @@ SudokuGrid* sudoku_grid_parse(const char* str)
     return nullptr;
 }
 
+SudokuGrid* sudoku_grid_scan()
+{
+    auto gridopt = tcb::sudoku::grid::parse(std::cin);
+    if (gridopt) {
+        return new (std::nothrow) SudokuGrid{std::move(*gridopt)};
+    }
+    return nullptr;
+}
+
 void sudoku_grid_free(SudokuGrid* grid)
 {
     delete grid;
