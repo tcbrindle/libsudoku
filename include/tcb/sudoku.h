@@ -1,6 +1,9 @@
+/**
+@file
+@author Tristan Brindle
+@copyright (c) 2017 Tristan Brindle <tcbrindle@gmail.com>
+*/
 /*
-Copyright (c) 2017 Tristan Brindle <tcbrindle@gmail.com>
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -18,6 +21,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+ */
+/**
+ * @defgroup c_api libsudoku C API
+ * @{
  */
 
 #ifndef TCB_SUDOKU_H_INCLUDED
@@ -68,6 +75,8 @@ const char* sudoku_grid_to_string(const SudokuGrid* grid);
  * freed with sudoku_grid_free()
  */
 SudokuGrid* sudoku_solve(const SudokuGrid* grid);
+
+/** @} */
 
 #ifdef __cplusplus
 }

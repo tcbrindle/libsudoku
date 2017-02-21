@@ -1,3 +1,8 @@
+/**
+@file
+@author Tristan Brindle
+@copyright (c) 2017 Tristan Brindle <tcbrindle@gmail.com>
+*/
 /*
 Copyright (c) 2017 Tristan Brindle <tcbrindle@gmail.com>
 
@@ -19,6 +24,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
+/// @defgroup cpp_api libsudoku C++ API
+/// @{
 
 #ifndef TCB_SUDOKU_HPP_INCLUDED
 #define TCB_SUDOKU_HPP_INCLUDED
@@ -53,29 +61,36 @@ using std::experimental::string_view;
 
 /// A class representing a sudoku grid.
 /// A grid always contains exactly 81 elements, where each element is a character
-/// in the range ['1', '9'], or the character '.'. Grids are immutable once
+/// in the range `[1-9]`, or the character `.`. Grids are immutable once
 /// created.
 class grid {
 public:
     /// Parse a string to create a new grid.
-    /// All characters other than ['0'-'9'] and '.' are ignored. A '0' is
-    /// interpreted as a '.', that is, an unknown value.
+    /// All characters other than `[0-9]` and `.` are ignored. A `0` is
+    /// interpreted as a `.`, that is, an unknown value.
     ///
-    /// Will fail (returning `std::experimental::nullopt`) if fewer than 81 valid
-    /// characters could be read.
-    static auto
-    parse(string_view str) -> optional<grid>;
+    /// Will fail (returning `nullopt`) if fewer than 81 valid characters could
+    /// be read.
+    static auto parse(string_view str) -> optional<grid>;
 
-    static auto
-    parse(std::istream& istream) -> optional<grid>;
+    /// Parse a stream to create a new grid.
+    /// All characters other than `[0-9]` and `.` are ignored. A `0` is
+    /// interpreted as a `.`, that is, an unknown value.
+    ///
+    /// Will fail (returning `nullopt`) if fewer than 81 valid characters could
+    /// be read (i.e. if the end-of-stream was reached).
+    static auto parse(std::istream& istream) -> optional<grid>;
 
     /// Default constructs an empty grid of 81 '.'s.
     grid() { cells_.fill('.'); cells_.back() = '\0'; }
 
+    /// Returns a random-access const iterator to the start of the cell range.
     auto begin() const { return std::begin(cells_); }
+    /// Returns a random-access const iterator to the start of the cell range.
     auto cbegin() const { return std::cbegin(cells_); }
-
+    /// Returns a random-access const iterator to the end of the cell range.
     auto end() const { return std::prev(std::end(cells_)); }
+    /// Returns a random-access const iterator to the end of the cell range.
     auto cend() const { return std::prev(std::cend(cells_)); }
 
 private:
@@ -83,23 +98,27 @@ private:
     std::array<char, 82> cells_;
 };
 
-/// Returns true if two grids are equal.
+/// Returns `true` if two grids are equal.
+/// @relates grid
 inline bool operator==(const grid& lhs, const grid& rhs)
 {
     return std::equal(std::begin(lhs), std::end(lhs),
                       std::begin(rhs), std::end(rhs));
 }
 
-/// Returns true if two grids are different.
+/// Returns `true` if two grids are different.
+/// @sa operator==(const grid&, const grid&)
+/// @relates grid
 inline bool operator!=(const grid& lhs, const grid& rhs)
 {
     return !(lhs == rhs);
 }
 
-/// Returns true if a grid is "less than" another.
+/// Returns `true` if a grid is "less than" another.
 /// One grid is considered "less than" another if it has more unknown cells.
 /// If two grids have the same number of unknown cells then the cells are
 /// compared lexicographically.
+/// @relates grid
 inline bool operator<(const grid& lhs, const grid& rhs)
 {
     const auto a = std::count(std::cbegin(lhs), std::cend(lhs), '.');
@@ -111,22 +130,25 @@ inline bool operator<(const grid& lhs, const grid& rhs)
     return a > b;
 }
 
-/// Returns true if a grid is "greater than" another
-/// @related operator<
+/// Returns `true` if a grid is "greater than" another
+/// @sa operator<(const grid&, const grid&)
+/// @relates grid
 inline bool operator>(const grid& lhs, const grid& rhs)
 {
     return rhs < lhs;
 }
 
-/// Returns true if a grid is "less than or equal to" another
-/// @related operator<
+/// @returns `true` if a grid is "less than or equal to" another
+/// @sa operator<(const grid&, const grid&)
+/// @relates grid
 inline bool operator<=(const grid& lhs, const grid& rhs)
 {
     return !(rhs < lhs);
 }
 
-/// Returns true if a grid is "greater than or equal to" another
-/// @related operator<
+/// Returns `true` if a grid is "greater than or equal to" another
+/// @sa operator<(const grid&, const grid&)
+/// @relates grid
 inline bool operator>=(const grid& lhs, const grid& rhs)
 {
     return !(lhs < rhs);
@@ -137,11 +159,10 @@ std::ostream& operator<<(std::ostream& os, const grid& g);
 
 /// Attempts to solve the given grid.
 /// If the solve algorithm fails or the supplied grid contains no solutions,
-/// returns `std::experimental::nullopt`. Otherwise returns the new, completed
-/// grid.
+/// returns `nullopt`. Otherwise returns the new, completed grid.
 auto solve(const grid& grid_) -> optional<grid>;
 
-/// Returns a string (well, string_view) representation of @param grid
+/// Returns a string (well, `string_view`) representation of the given grid
 inline auto to_string(const grid& grid) -> string_view
 {
     return {&*grid.begin(), 81};
@@ -153,9 +174,13 @@ inline auto to_string(const grid& grid) -> string_view
 
 namespace std {
 
+/// Standard hash specialisation for grids.
+/// Allows a `grid` to be placed in a `std::unordered_set`, or used as the key
+/// in a `std::unordered_map`.
 template <>
 struct hash<tcb::sudoku::grid>
 {
+    /// @cond
     using argument_type = tcb::sudoku::grid;
     using result_type = size_t;
 
@@ -163,9 +188,8 @@ struct hash<tcb::sudoku::grid>
     {
         return hash<tcb::sudoku::string_view>{}(to_string(grid));
     }
+    /// @endcond
 };
-
-
 } // end namespace std
 
 #endif
