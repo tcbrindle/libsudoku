@@ -267,6 +267,68 @@ TEST_CASE("Grids can be used as keys in a std::unordered_map", "[grid]")
 }
 
 /*
+ * Container concept tests
+ */
+TEST_CASE("Grids behave roughly like standard containers", "[grid]")
+{
+    const auto grid = *tcb::sudoku::grid::parse(solvable);
+    REQUIRE(grid.size() == 81);
+    REQUIRE(grid.max_size() == 81);
+    REQUIRE_FALSE(grid.empty());
+    REQUIRE(grid.front() == solvable[0]);
+    REQUIRE(grid.back() == solvable[80]);
+    for (int i = 0; i < 81; i++) {
+        REQUIRE(grid[i] == solvable[i]);
+    }
+    REQUIRE_NOTHROW(grid.at(0) == solvable[0]);
+    REQUIRE_THROWS_AS(grid.at(-1), std::out_of_range);
+    REQUIRE_THROWS_AS(grid.at(81), std::out_of_range);
+    REQUIRE(std::equal(grid.data(), grid.data() + grid.size(),
+                       std::begin(solvable), std::end(solvable) - 1));
+}
+
+TEST_CASE("Grids are Swappable", "[grid]")
+{
+    auto grid1 = *tcb::sudoku::grid::parse(solvable);
+    auto grid2 = *tcb::sudoku::grid::parse(unsolvable);
+
+    SECTION("...using member swap()")
+    {
+        grid1.swap(grid2);
+    }
+
+    SECTION("...using member swap() again")
+    {
+        grid2.swap(grid1);
+    }
+
+    SECTION("...using nonmember swap() via ADL")
+    {
+        using std::swap;
+        swap(grid1, grid2);
+    }
+
+    SECTION("...using nonmember swap via ADL again")
+    {
+        using std::swap;
+        swap(grid2, grid1);
+    }
+
+    SECTION("Using explicitly-qualified nonmember swap")
+    {
+        tcb::sudoku::swap(grid1, grid2);
+    }
+
+    SECTION("Using explicitly-qualified nonmember swap again")
+    {
+        tcb::sudoku::swap(grid2, grid1);
+    }
+
+    REQUIRE(equal(unsolvable, grid1));
+    REQUIRE(equal(solvable, grid2));
+}
+
+/*
  * Solvability tests
  */
 

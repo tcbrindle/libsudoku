@@ -64,7 +64,21 @@ using std::experimental::string_view;
 /// in the range `[1-9]`, or the character `.`. Grids are immutable once
 /// created.
 class grid {
+    // 81 squares plus a null terminator for easy conversion to a C string
+    using cells_type = std::array<char, 82>;
 public:
+    /// @cond
+    using value_type = typename cells_type::value_type;
+    using reference = typename cells_type ::reference ;
+    using const_reference = typename cells_type::const_reference;
+    using pointer = typename cells_type::pointer;
+    using const_pointer = typename cells_type::const_pointer;
+    using iterator = typename cells_type::const_iterator;
+    using const_iterator = typename cells_type::const_iterator;
+    using difference_type = typename cells_type::difference_type;
+    using size_type = typename cells_type::size_type;
+    /// @endcond
+
     /// Parse a string to create a new grid.
     /// All characters other than `[0-9]` and `.` are ignored. A `0` is
     /// interpreted as a `.`, that is, an unknown value.
@@ -85,17 +99,47 @@ public:
     grid() { cells_.fill('.'); cells_.back() = '\0'; }
 
     /// Returns a random-access const iterator to the start of the cell range.
-    auto begin() const { return std::begin(cells_); }
+    auto begin() const -> const_iterator { return std::begin(cells_); }
     /// Returns a random-access const iterator to the start of the cell range.
-    auto cbegin() const { return std::cbegin(cells_); }
+    auto cbegin() const -> const_iterator { return std::cbegin(cells_); }
     /// Returns a random-access const iterator to the end of the cell range.
-    auto end() const { return std::prev(std::end(cells_)); }
+    auto end() const -> const_iterator { return std::prev(std::end(cells_)); }
     /// Returns a random-access const iterator to the end of the cell range.
-    auto cend() const { return std::prev(std::cend(cells_)); }
+    auto cend() const -> const_iterator { return std::prev(std::cend(cells_)); }
+
+    /// Swaps the contents of this grid with that of `other`
+    void swap(grid& other) { cells_.swap(other.cells_); }
+
+    /// Returns the size of the grid, i.e. 81
+    auto size() const -> size_type { return 81; }
+
+    /// Returns the maximum size of a grid, i.e. 81
+    auto max_size() const -> size_type { return 81; }
+
+    /// Returns whether the grid is empty; this is always `false`
+    auto empty() const -> bool { return false; }
+
+    /// Returns the first element of the grid
+    auto front() const -> const_reference { return cells_.front(); }
+
+    /// Returns the last element of the grid
+    auto back() const -> const_reference { return cells_[80]; }
+
+    /// Returns the element at position `idx`
+    auto operator[](size_type idx) const -> const_reference { return cells_[idx]; }
+
+    /// Returns the element at position `idx`, with bounds checking
+    auto at(size_type idx) const -> const_reference
+    {
+        // This is a hack to ensure we get the right behaviour when compiled with -fno-exceptions
+        return cells_.at(idx == 81 ? idx + 1: idx);
+    }
+
+    /// Returns a const pointer to the raw character array in the grid
+    auto data() const -> const_pointer { return cells_.data(); }
 
 private:
-    // 81 squares plus a null terminator for easy conversion to a C string
-    std::array<char, 82> cells_;
+    cells_type cells_;
 };
 
 /// Returns `true` if two grids are equal.
@@ -154,6 +198,14 @@ inline bool operator>=(const grid& lhs, const grid& rhs)
     return !(lhs < rhs);
 }
 
+/// Swaps the contents of `lhs` and `rhs`
+/// @sa tcb::sudoku::grid::swap()
+/// @relates grid
+inline void swap(grid& lhs, grid& rhs)
+{
+    lhs.swap(rhs);
+}
+
 /// Pretty-prints a grid as a recognisable sudoku board.
 std::ostream& operator<<(std::ostream& os, const grid& g);
 
@@ -165,7 +217,7 @@ auto solve(const grid& grid_) -> optional<grid>;
 /// Returns a string (well, `string_view`) representation of the given grid
 inline auto to_string(const grid& grid) -> string_view
 {
-    return {&*grid.begin(), 81};
+    return {grid.data(), 81};
 }
 
 } // end namespace sudoku

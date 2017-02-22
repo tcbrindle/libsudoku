@@ -76,7 +76,7 @@ const char* sudoku_grid_to_string(const SudokuGrid* grid)
     if (!grid) {
         return nullptr;
     }
-    return &*grid->grid.begin();
+    return grid->grid.data();
 }
 
 SudokuGrid* sudoku_solve(const SudokuGrid* grid)
