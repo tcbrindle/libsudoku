@@ -5,6 +5,7 @@
 #include <array>
 
 namespace tcb {
+namespace sudoku {
 
 constexpr std::array<std::array<int, 9>, 81> row_indices = {{
     {{ 0, 1, 2, 3, 4, 5, 6, 7, 8 }},
@@ -342,6 +343,7 @@ constexpr std::array<std::array<int, 20>, 81> peers_indices = {{
     {{ 8, 17, 26, 35, 44, 53, 60, 61, 62, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79 }},
 }};
 
+} // end namespace sudoku
 } // end namespace tcb
 
 #endif

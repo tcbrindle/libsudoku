@@ -34,10 +34,12 @@ constexpr char preamble[] = R"(
 #include <array>
 
 namespace tcb {
+namespace sudoku {
 
 )";
 
-constexpr char postamble[] = R"(} // end namespace tcb
+constexpr char postamble[] = R"(} // end namespace sudoku
+} // end namespace tcb
 
 #endif
 )";
