@@ -13,3 +13,8 @@ add_test(test_solver_cpp test_solver_cpp
     ${CMAKE_CURRENT_LIST_DIR}/files/easy50.txt 50
     ${CMAKE_CURRENT_LIST_DIR}/files/hard.txt 95)
 
+add_executable(test_solver_c test_solver_c.c)
+target_link_libraries(test_solver_c sudoku)
+add_test(test_solver_c test_solver_c
+    ${CMAKE_CURRENT_LIST_DIR}/files/easy50.txt 50
+    ${CMAKE_CURRENT_LIST_DIR}/files/hard.txt 95)
