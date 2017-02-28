@@ -53,6 +53,36 @@ SudokuGrid* sudoku_grid_scan()
     return nullptr;
 }
 
+SudokuGrid* sudoku_grid_fscan(FILE* file)
+{
+    // Annoyingly, we need to do all the filtering here, to build up a string
+    // to give to grid::parse().
+    std::string str;
+    static const auto is_ok = [] (char c) {
+        return (c >= '0' && c <= '9') || (c == '.');
+    };
+
+
+    while (str.size() < 81) {
+        char c;
+        if (std::fread(&c, sizeof(char), 1, file) != 1) {
+            return nullptr;
+        }
+
+        if (!is_ok(c)) {
+            continue;
+        }
+
+        str.push_back(c);
+    }
+
+    auto grid = tcb::sudoku::grid::parse(str);
+    if (grid) {
+        return new (std::nothrow) SudokuGrid{std::move(*grid)};
+    }
+    return nullptr;
+}
+
 void sudoku_grid_free(SudokuGrid* grid)
 {
     delete grid;

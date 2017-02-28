@@ -55,8 +55,22 @@ SudokuGrid *sudoku_grid_parse(const char *str);
  *
  * Will fail (returning `NULL`) if fewer than 81 valid characters could be read
  * before encountering the end of the stream.
+ *
+ * You must free the returned grid with sudoku_grid_free().
  */
 SudokuGrid *sudoku_grid_scan(void);
+
+/**
+ * Parse a grid from a file stream.
+ * All characters other than `[0-9]` and `.` are ignored. A `0` is interpreted
+ * as a `.`, that is, an unknown value.
+ *
+ * Will fail (returning `NULL`) if fewer than 81 valid characters could be read
+ * before encountering the end of the stream or an IO error.
+ *
+ * You must free the returned grid with sudoku_grid_free().
+ */
+SudokuGrid *sudoku_grid_fscan(FILE* file);
 
 /**
  * Frees a grid created with sudoku_grid_parse() or sudoku_grid_solve()
