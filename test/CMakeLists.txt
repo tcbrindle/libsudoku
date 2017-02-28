@@ -13,4 +13,3 @@ add_test(test_solver_cpp test_solver_cpp
     ${CMAKE_CURRENT_LIST_DIR}/files/easy50.txt 50
     ${CMAKE_CURRENT_LIST_DIR}/files/hard.txt 95)
 
-file(COPY files DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
