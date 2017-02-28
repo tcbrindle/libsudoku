@@ -3,18 +3,18 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
-constexpr struct {
+struct test_file {
     const char* path;
     int num_puzzles;
-} test_files[] = {
-        { "test/files/easy50.txt", 50 },
-        { "test/files/hard.txt", 95 }
 };
 
-int main()
+int main(int argc, char** argv)
 {
-    for (const auto& file : test_files) {
+    for (int i = 1; i < argc - 1; i += 2) {
+        const test_file file{argv[i], std::atoi(argv[i + 1])};
+
         std::ifstream is{file.path};
         if (!is) {
             std::cerr << "Error: could not open test file " << file.path << std::endl;
