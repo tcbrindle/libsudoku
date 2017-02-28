@@ -27,6 +27,7 @@ SOFTWARE.
 
 /// @defgroup cpp_api libsudoku C++ API
 /// @{
+/// @example example.cpp
 
 #ifndef TCB_SUDOKU_HPP_INCLUDED
 #define TCB_SUDOKU_HPP_INCLUDED
