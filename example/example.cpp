@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include <tcb/sudoku.hpp>
 
-#include <cassert>
 #include <iostream>
 
 int main()
@@ -69,13 +68,13 @@ int main()
     // What does the 33rd cell contain?
     std::cout << "grid[32] = " << grid[32] << '\n';
 
-    // What does the 101st cell contain?
+    // What does the 102nd cell contain?
     try {
         const auto value = grid.at(101);
         std::cout << "grid.at(101) = " << value << '\n';
     }
     catch (const std::out_of_range&) {
-        // Just kidding, there is no 101st cell -- a sudoku grid is 9 x 9 = 81
+        // Just kidding, there is no 102nd cell -- a sudoku grid is 9 x 9 = 81
         std::cout << "out_of_range exception when calling grid.at(101)\n\n";
     }
 
