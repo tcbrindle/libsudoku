@@ -25,7 +25,8 @@ constexpr auto& solvable_printed =
 constexpr auto& empty = ".................................................................................";
 constexpr auto& empty_soln = "123456789456789123789123456231674895875912364694538217317265948542897631968341572";
 
-constexpr auto& unsolvable = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";
+//constexpr auto& unsolvable = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";
+constexpr auto& unsolvable = "111111111........................................................................";
 
 bool equal(tcb::sudoku::string_view sv, const tcb::sudoku::grid& grid)
 {
@@ -350,7 +351,8 @@ TEST_CASE("Solving empty grids works as expected", "[solve]")
 
 TEST_CASE("Unsolvable grids are handled correctly", "[solve]")
 {
-    const auto grid = *tcb::sudoku::grid::parse(unsolvable);
-    const auto soln = tcb::sudoku::solve(grid);
+    const auto grid = tcb::sudoku::grid::parse(unsolvable);
+    REQUIRE(grid);
+    const auto soln = tcb::sudoku::solve(*grid);
     REQUIRE_FALSE(soln);
 }

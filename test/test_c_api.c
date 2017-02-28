@@ -13,7 +13,8 @@ static const char solvable[] = "6.2.5.........3.4..........43...8....1....2.....
 static const char solvable_soln[] = "682154379951763842374892165437528916816937254295416738568271493729345681143689527";
 static const char empty[] = ".................................................................................";
 static const char empty_soln[] = "123456789456789123789123456231674895875912364694538217317265948542897631968341572";
-static const char unsolvable[] = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";
+/*static const char unsolvable[] = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";*/
+static const char unsolvable[] = "111111111........................................................................";
 
 static void test_parse_from_string()
 {
@@ -75,6 +76,7 @@ static void test_unsolvable()
     SudokuGrid *soln = NULL;
 
     grid = sudoku_grid_parse(unsolvable);
+    assert(grid);
     soln = sudoku_solve(grid);
 
     assert(!soln);
