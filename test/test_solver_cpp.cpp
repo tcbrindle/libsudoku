@@ -23,7 +23,7 @@ int main()
 
         int n_parsed = 0;
         auto grid = tcb::sudoku::optional<tcb::sudoku::grid>{};
-        while (grid = tcb::sudoku::grid::parse(is)) {
+        while ((grid = tcb::sudoku::grid::parse(is))) {
             ++n_parsed;
             const auto soln = tcb::sudoku::solve(*grid);
             if (!soln) {
