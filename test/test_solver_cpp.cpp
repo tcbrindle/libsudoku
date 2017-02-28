@@ -3,21 +3,16 @@
 
 #include <fstream>
 #include <iostream>
-#include <vector>
-
-struct test_file {
-    const char* path;
-    int num_puzzles;
-};
 
 int main(int argc, char** argv)
 {
     for (int i = 1; i < argc - 1; i += 2) {
-        const test_file file{argv[i], std::atoi(argv[i + 1])};
+        const auto& file_path = argv[i];
+        int num_puzzles = std::atoi(argv[i + 1]);
 
-        std::ifstream is{file.path};
+        std::ifstream is{file_path};
         if (!is) {
-            std::cerr << "Error: could not open test file " << file.path << std::endl;
+            std::cerr << "Error: could not open test file " << file_path << std::endl;
             return 1;
         }
 
@@ -32,7 +27,7 @@ int main(int argc, char** argv)
                 return 1;
             }
         }
-        if (n_parsed != file.num_puzzles) {
+        if (n_parsed != num_puzzles) {
             std::cerr << "Error: could not read all puzzles\n";
             return 1;
         }
