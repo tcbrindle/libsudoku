@@ -55,6 +55,10 @@ SudokuGrid* sudoku_grid_scan()
 
 SudokuGrid* sudoku_grid_fscan(FILE* file)
 {
+    if (!file) {
+        return nullptr;
+    }
+
     // Annoyingly, we need to do all the filtering here, to build up a string
     // to give to grid::parse().
     std::string str;

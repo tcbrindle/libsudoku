@@ -97,6 +97,9 @@ static void test_null()
     sudoku_grid_pretty_print(NULL);
     sudoku_grid_pretty_fprint(NULL, NULL);
 
+    grid = sudoku_grid_fscan(NULL);
+    assert(!grid);
+
     str = sudoku_grid_to_string(NULL);
     assert(!str);
 
