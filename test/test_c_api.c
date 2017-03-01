@@ -7,10 +7,23 @@
 #endif
 
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
 static const char solvable[] = "6.2.5.........3.4..........43...8....1....2........7..5..27...........81...6.....";
 static const char solvable_soln[] = "682154379951763842374892165437528916816937254295416738568271493729345681143689527";
+static const char solvable_printed[] =
+        "6 . 2 | . 5 . | . . .\n"
+        ". . . | . . 3 | . 4 .\n"
+        ". . . | . . . | . . .\n"
+        "------+-------+------\n"
+        "4 3 . | . . 8 | . . .\n"
+        ". 1 . | . . . | 2 . .\n"
+        ". . . | . . . | 7 . .\n"
+        "------+-------+------\n"
+        "5 . . | 2 7 . | . . .\n"
+        ". . . | . . . | . 8 1\n"
+        ". . . | 6 . . | . . .";
 static const char empty[] = ".................................................................................";
 static const char empty_soln[] = "123456789456789123789123456231674895875912364694538217317265948542897631968341572";
 /*static const char unsolvable[] = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";*/
@@ -32,11 +45,17 @@ static void test_string_conversion()
 {
     SudokuGrid *grid = NULL;
     const char* out = NULL;
+    char *out_formatted = NULL;
 
     grid = sudoku_grid_parse(solvable);
-    out = sudoku_grid_to_string(grid);
 
+    out = sudoku_grid_to_string(grid);
     assert(strcmp(out, solvable) == 0);
+
+    out_formatted = sudoku_grid_to_formatted_string(grid);
+    assert(strcmp(out_formatted, solvable_printed) == 0);
+
+    free(out_formatted);
     sudoku_grid_free(grid);
 }
 
@@ -101,6 +120,9 @@ static void test_null()
     assert(!grid);
 
     str = sudoku_grid_to_string(NULL);
+    assert(!str);
+
+    str = sudoku_grid_to_formatted_string(NULL);
     assert(!str);
 
     grid = sudoku_solve(NULL);

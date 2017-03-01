@@ -23,6 +23,7 @@ SOFTWARE.
 #include <tcb/sudoku.h>
 #include <tcb/sudoku.hpp>
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 
@@ -120,6 +121,18 @@ const char* sudoku_grid_to_string(const SudokuGrid* grid)
         return nullptr;
     }
     return grid->grid.data();
+}
+
+char* sudoku_grid_to_formatted_string(const SudokuGrid* grid)
+{
+    if (!grid) {
+        return nullptr;
+    }
+
+    std::stringstream ss;
+    ss << grid->grid;
+
+    return strdup(ss.str().c_str());
 }
 
 SudokuGrid* sudoku_solve(const SudokuGrid* grid)

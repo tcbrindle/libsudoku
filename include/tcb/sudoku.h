@@ -45,6 +45,8 @@ typedef struct SudokuGrid SudokuGrid;
  * as a `.`, that is, an unknown value.
  *
  * Will fail (returning `NULL`) if fewer than 81 valid characters could be read.
+ *
+ * You must free the returned grid with sudoku_grid_free().
  */
 SudokuGrid *sudoku_grid_parse(const char *str);
 
@@ -79,11 +81,27 @@ void sudoku_grid_free(SudokuGrid *grid);
 
 /**
  * Pretty-prints a grid to stdout.
+ *
+ * Equivalent to
+ *
+ * ```c
+ * char *str = sudoku_grid_to_formatted_string(grid);
+ * printf("%s", str);
+ * free(str);
+ * ```
  */
 void sudoku_grid_pretty_print(const SudokuGrid *grid);
 
 /**
  * Pretty-prints a grid to stream.
+ *
+ * Equivalent to
+ *
+ * ```c
+ * char *str = sudoku_grid_to_formatted_string(grid);
+ * fprintf(stream, "%s", str);
+ * free(str);
+ * ```
  */
 void sudoku_grid_pretty_fprint(FILE *stream, const SudokuGrid *grid);
 
@@ -91,6 +109,12 @@ void sudoku_grid_pretty_fprint(FILE *stream, const SudokuGrid *grid);
  * Returns a string representation of grid. Do not free.
  */
 const char *sudoku_grid_to_string(const SudokuGrid *grid);
+
+/**
+ * Returns a formatted string representation of the grid.
+ * You must free(3) the returned string
+ */
+char *sudoku_grid_to_formatted_string(const SudokuGrid *grid);
 
 /**
  * Attempts to solve the given grid.
