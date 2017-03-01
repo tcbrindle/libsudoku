@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         stream = fopen(file_path, "r");
         if (!stream) {
             fprintf(stderr, "Error opening file %s: %s\n", file_path, strerror(errno));
-            return 1;
+            return EXIT_FAILURE;
         }
 
         while ((grid = sudoku_grid_fscan(stream))) {
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "Error solving grid:\n");
                 sudoku_grid_pretty_fprint(stderr, grid);
                 sudoku_grid_free(grid);
-                return 1;
+                return EXIT_FAILURE;
             }
 
             ++n_parsed;
@@ -41,7 +41,9 @@ int main(int argc, char **argv)
 
         if (n_parsed != num_puzzles) {
             fprintf(stderr, "Error: could not parse all puzzles\n");
-            return 1;
+            return EXIT_FAILURE;
         }
     }
+
+    return EXIT_SUCCESS;
 }

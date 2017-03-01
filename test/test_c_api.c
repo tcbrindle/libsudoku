@@ -29,7 +29,7 @@ static const char empty_soln[] = "1234567894567891237891234562316748958759123646
 /*static const char unsolvable[] = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";*/
 static const char unsolvable[] = "111111111........................................................................";
 
-static void test_parse_from_string()
+static void test_parse_from_string(void)
 {
     SudokuGrid *grid = NULL;
 
@@ -41,7 +41,7 @@ static void test_parse_from_string()
     assert(grid == NULL);
 }
 
-static void test_string_conversion()
+static void test_string_conversion(void)
 {
     SudokuGrid *grid = NULL;
     const char* out = NULL;
@@ -59,7 +59,7 @@ static void test_string_conversion()
     sudoku_grid_free(grid);
 }
 
-static void test_simple_solve()
+static void test_simple_solve(void)
 {
     SudokuGrid *grid = NULL;
     SudokuGrid *soln = NULL;
@@ -74,7 +74,7 @@ static void test_simple_solve()
     sudoku_grid_free(soln);
 }
 
-static void test_empty_solve()
+static void test_empty_solve(void)
 {
     SudokuGrid *grid = NULL;
     SudokuGrid *soln = NULL;
@@ -89,7 +89,7 @@ static void test_empty_solve()
     sudoku_grid_free(soln);
 }
 
-static void test_unsolvable()
+static void test_unsolvable(void)
 {
     SudokuGrid *grid = NULL;
     SudokuGrid *soln = NULL;
@@ -102,7 +102,7 @@ static void test_unsolvable()
     sudoku_grid_free(grid);
 }
 
-static void test_null()
+static void test_null(void)
 {
     SudokuGrid *grid = NULL;
     const char* str = NULL;
@@ -129,7 +129,7 @@ static void test_null()
     assert(!grid);
 }
 
-int main()
+int main(void)
 {
     test_parse_from_string();
     test_string_conversion();
