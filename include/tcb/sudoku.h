@@ -25,6 +25,7 @@ SOFTWARE.
 /**
  * @defgroup c_api libsudoku C API
  * @{
+ * @example example.c
  */
 
 #ifndef TCB_SUDOKU_H_INCLUDED
