@@ -96,6 +96,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga91ba0b9e2a48a4fe74bf7cf6f15568ec"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga91ba0b9e2a48a4fe74bf7cf6f15568ec">sudoku_grid_to_string</a> (const <a class="el" href="group__c__api.html#ga9f0c547654f3c2339c68a212ef31c537">SudokuGrid</a> *grid)</td></tr>
 <tr class="memdesc:ga91ba0b9e2a48a4fe74bf7cf6f15568ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a string representation of grid.  <a href="#ga91ba0b9e2a48a4fe74bf7cf6f15568ec">More...</a><br /></td></tr>
 <tr class="separator:ga91ba0b9e2a48a4fe74bf7cf6f15568ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4da692b50304cb014ed65315ccb8433e"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga4da692b50304cb014ed65315ccb8433e">sudoku_grid_to_formatted_string</a> (const <a class="el" href="group__c__api.html#ga9f0c547654f3c2339c68a212ef31c537">SudokuGrid</a> *grid)</td></tr>
+<tr class="memdesc:ga4da692b50304cb014ed65315ccb8433e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a formatted string representation of the grid.  <a href="#ga4da692b50304cb014ed65315ccb8433e">More...</a><br /></td></tr>
+<tr class="separator:ga4da692b50304cb014ed65315ccb8433e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga64ed03b87020033521cefa0081ac7a59"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__c__api.html#ga9f0c547654f3c2339c68a212ef31c537">SudokuGrid</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__c__api.html#ga64ed03b87020033521cefa0081ac7a59">sudoku_solve</a> (const <a class="el" href="group__c__api.html#ga9f0c547654f3c2339c68a212ef31c537">SudokuGrid</a> *grid)</td></tr>
 <tr class="memdesc:ga64ed03b87020033521cefa0081ac7a59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to solve the given grid.  <a href="#ga64ed03b87020033521cefa0081ac7a59">More...</a><br /></td></tr>
 <tr class="separator:ga64ed03b87020033521cefa0081ac7a59"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -137,8 +140,10 @@ Functions</h2></td></tr>
 
 <p>Parse a null-terminated string to create a new grid. </p>
 <p>All characters other than <code>[0-9]</code> and <code>.</code> are ignored. A <code>0</code> is interpreted as a <code>.</code>, that is, an unknown value.</p>
-<p>Will fail (returning <code>NULL</code>) if fewer than 81 valid characters could be read. </p>
-
+<p>Will fail (returning <code>NULL</code>) if fewer than 81 valid characters could be read.</p>
+<p>You must free the returned grid with <a class="el" href="group__c__api.html#ga30a9fcf97b14d008597c8f50821152ae" title="Frees a grid created with sudoku_grid_parse() or sudoku_grid_solve() ">sudoku_grid_free()</a>. </p>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="example_8c-example.html#a0">example.c</a>.</dd>
+</dl>
 </div>
 </div>
 <a id="ga1cbb90e1fa9d2f638b20f4979429dd18"></a>
@@ -204,7 +209,8 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Frees a grid created with <a class="el" href="group__c__api.html#gae0a5f2f6a022923104f874d7d071dd8f" title="Parse a null-terminated string to create a new grid. ">sudoku_grid_parse()</a> or sudoku_grid_solve() </p>
-
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="example_8c-example.html#a5">example.c</a>.</dd>
+</dl>
 </div>
 </div>
 <a id="gabbe12cc914014c8e5cdfd944dbe07d49"></a>
@@ -224,7 +230,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Pretty-prints a grid to stdout. </p>
-
+<p>Equivalent to</p>
+<div class="fragment"><div class="line"><span class="keywordtype">char</span> *str = <a class="code" href="group__c__api.html#ga4da692b50304cb014ed65315ccb8433e">sudoku_grid_to_formatted_string</a>(grid);</div><div class="line">printf(<span class="stringliteral">&quot;%s&quot;</span>, str);</div><div class="line">free(str);</div></div><!-- fragment --> <dl><dt><b>Examples: </b></dt><dd><a class="el" href="example_8c-example.html#a1">example.c</a>.</dd>
+</dl>
 </div>
 </div>
 <a id="ga2808072f5727d99ed9bd2b70d617cde9"></a>
@@ -254,7 +262,8 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Pretty-prints a grid to stream. </p>
-
+<p>Equivalent to</p>
+<div class="fragment"><div class="line"><span class="keywordtype">char</span> *str = <a class="code" href="group__c__api.html#ga4da692b50304cb014ed65315ccb8433e">sudoku_grid_to_formatted_string</a>(grid);</div><div class="line">fprintf(stream, <span class="stringliteral">&quot;%s&quot;</span>, str);</div><div class="line">free(str);</div></div><!-- fragment --> 
 </div>
 </div>
 <a id="ga91ba0b9e2a48a4fe74bf7cf6f15568ec"></a>
@@ -275,7 +284,30 @@ Functions</h2></td></tr>
 
 <p>Returns a string representation of grid. </p>
 <p>Do not free. </p>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="example_8c-example.html#a2">example.c</a>.</dd>
+</dl>
+</div>
+</div>
+<a id="ga4da692b50304cb014ed65315ccb8433e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4da692b50304cb014ed65315ccb8433e">&#9670;&nbsp;</a></span>sudoku_grid_to_formatted_string()</h2>
 
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* sudoku_grid_to_formatted_string </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="group__c__api.html#ga9f0c547654f3c2339c68a212ef31c537">SudokuGrid</a> *&#160;</td>
+          <td class="paramname"><em>grid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a formatted string representation of the grid. </p>
+<p>You must free(3) the returned string </p>
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="example_8c-example.html#a4">example.c</a>.</dd>
+</dl>
 </div>
 </div>
 <a id="ga64ed03b87020033521cefa0081ac7a59"></a>
@@ -296,7 +328,8 @@ Functions</h2></td></tr>
 
 <p>Attempts to solve the given grid. </p>
 <p>If the solve algorithm fails or the supplied grid contains no solutions, returns <code>NULL</code>. Otherwise returns the new, completed grid, which must be freed with <a class="el" href="group__c__api.html#ga30a9fcf97b14d008597c8f50821152ae" title="Frees a grid created with sudoku_grid_parse() or sudoku_grid_solve() ">sudoku_grid_free()</a> </p>
-
+<dl><dt><b>Examples: </b></dt><dd><a class="el" href="example_8c-example.html#a3">example.c</a>.</dd>
+</dl>
 </div>
 </div>
 </div><!-- contents -->
