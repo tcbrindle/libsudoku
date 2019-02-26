@@ -84,7 +84,7 @@ struct cell_t {
     auto count() const
     {
 #ifdef _MSC_VER
-		return __popcnt(bits);
+        return __popcnt(bits);
 #else
         return __builtin_popcount(bits);
 #endif
