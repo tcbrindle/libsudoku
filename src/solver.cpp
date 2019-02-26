@@ -160,7 +160,7 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
     });
 }
 
-auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
+auto grid_to_puzzle(const grid& g) -> std::optional<puzzle_t>
 {
     auto puzzle = puzzle_t{};
     auto view = rng::view::all(g)
@@ -173,7 +173,7 @@ auto grid_to_puzzle(const grid& g) -> optional<puzzle_t>
     })) {
         return std::move(puzzle);
     }
-    return nullopt;
+    return std::nullopt;
 }
 
 auto puzzle_to_grid(const puzzle_t& p) -> grid
@@ -190,7 +190,7 @@ auto puzzle_to_grid(const puzzle_t& p) -> grid
     return std::move(*grid::parse({array.data(), 81}));
 }
 
-auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
+auto do_solve(const puzzle_t& p) -> std::optional<puzzle_t>
 {
     // If all cells have only one possibility, we're done
     if (rng::all_of(p, [](const auto& c) { return c.count() == 1; })) {
@@ -218,7 +218,7 @@ auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
                 if (assign(p_copy, min_idx, i)) {
                     return do_solve(p_copy);
                 }
-                return optional<puzzle_t>{};
+                return std::optional<puzzle_t>{};
             });
 
     // FIXME: We should be able to filter the above view with view::remove_if(),
@@ -230,22 +230,22 @@ auto do_solve(const puzzle_t& p) -> optional<puzzle_t>
             return std::move(opt);
         }
     }
-    return nullopt;
+    return std::nullopt;
 }
 
 }
 
-auto solve(const grid& g) -> optional<grid>
+auto solve(const grid& g) -> std::optional<grid>
 {
     auto puzzle = grid_to_puzzle(g);
     if (!puzzle) {
-        return nullopt;
+        return std::nullopt;
     }
     auto result = do_solve(*puzzle);
     if (result) {
         return puzzle_to_grid(*result);
     }
-    return nullopt;
+    return std::nullopt;
 }
 
 }}

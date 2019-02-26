@@ -17,7 +17,7 @@ int main(int argc, char** argv)
         }
 
         int n_parsed = 0;
-        auto grid = tcb::sudoku::optional<tcb::sudoku::grid>{};
+        auto grid = std::optional<tcb::sudoku::grid>{};
         while ((grid = tcb::sudoku::grid::parse(is))) {
             ++n_parsed;
             const auto soln = tcb::sudoku::solve(*grid);

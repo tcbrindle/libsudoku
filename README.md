@@ -1,12 +1,12 @@
 # libsudoku
 
-libsudoku is a small library for solving sudoku puzzles. It has both C and C++14 interfaces, and is implemented in C++14 using [Range-V3](https://github.com/ericniebler/range-v3/).
+libsudoku is a small library for solving sudoku puzzles. It has both C and C++17 interfaces, and is implemented in C++17 using [Range-V3](https://github.com/ericniebler/range-v3/).
 
 ## Building ##
 
 ### GCC and Clang ###
 
-Building the library requires a C++14 compiler with implementations of `std::experimental::optional` and `std::experimental::string_view`, capable of handling Range-V3 code.
+Building the library requires a C++17 compiler capable of handling Range-V3 code.
 
 You'll need to set the CMake configuration variable `RANGE_V3_INCLUDE_DIRS` to point to the `include` directory of a Range-V3 checkout (unless you have the headers installed in a system location such as `/usr/include` or `/usr/local/include`, in which case it should be picked up automatically). You can do this by providing the `-D` switch to CMake on the command line, for example
 

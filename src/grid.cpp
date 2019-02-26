@@ -41,7 +41,7 @@ namespace rng = ranges::v3;
 namespace tcb {
 namespace sudoku {
 
-auto grid::parse(string_view str) -> optional<grid>
+auto grid::parse(std::string_view str) -> std::optional<grid>
 {
     auto view = rng::view::all(str)
             | rng::view::remove_if([](char c) { return c != '.' && (c < '0' || c > '9'); })
@@ -49,7 +49,7 @@ auto grid::parse(string_view str) -> optional<grid>
             | rng::view::take(81);
 
     if (rng::distance(view) < 81) {
-        return nullopt;
+        return std::nullopt;
     }
 
     auto g = grid{};
@@ -57,7 +57,7 @@ auto grid::parse(string_view str) -> optional<grid>
     return std::move(g);
 }
 
-auto grid::parse(std::istream& istream) -> optional<grid>
+auto grid::parse(std::istream& istream) -> std::optional<grid>
 {
     // Annoyingly in this case, but probably with good reason,
     // rng::view::remove_if caches the next value -- which means that in the
@@ -83,7 +83,7 @@ auto grid::parse(std::istream& istream) -> optional<grid>
     }
 
     if (count < 81) {
-        return nullopt;
+        return std::nullopt;
     }
 
     return std::move(g);
@@ -109,7 +109,7 @@ auto operator<<(std::ostream& os, const grid& g) -> std::ostream&
                             | rng::view::join('|')
                             | rng::view::intersperse(' '); })
                     | rng::view::join('\n'); })
-            | rng::view::join(string_view("\n------+-------+------\n"));
+            | rng::view::join(std::string_view("\n------+-------+------\n"));
 
     rng::copy(range, rng::ostream_iterator<>(os));
 

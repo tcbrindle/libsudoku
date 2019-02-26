@@ -36,29 +36,13 @@ SOFTWARE.
 #include <array>
 #include <functional>
 #include <iosfwd>
-
-#if defined(_MSC_VER)
 #include <optional>
 #include <string_view>
-#define TCB_SUDOKU_USING_STD_OPTIONAL
-#else
-#include <experimental/optional>
-#include <experimental/string_view>
-#endif // _MSC_VER
+
 
 
 namespace tcb {
 namespace sudoku {
-
-#ifdef TCB_SUDOKU_USING_STD_OPTIONAL
-using std::optional;
-using std::nullopt;
-using std::string_view;
-#else
-using std::experimental::optional;
-using std::experimental::nullopt;
-using std::experimental::string_view;
-#endif
 
 /// A class representing a sudoku grid.
 /// A grid always contains exactly 81 elements, where each element is a character
@@ -86,7 +70,7 @@ public:
     ///
     /// Will fail (returning `nullopt`) if fewer than 81 valid characters could
     /// be read.
-    static auto parse(string_view str) -> optional<grid>;
+    static auto parse(std::string_view str) -> std::optional<grid>;
 
     /// Parse a stream to create a new grid.
     /// All characters other than `[0-9]` and `.` are ignored. A `0` is
@@ -94,7 +78,7 @@ public:
     ///
     /// Will fail (returning `nullopt`) if fewer than 81 valid characters could
     /// be read (i.e. if the end-of-stream was reached).
-    static auto parse(std::istream& istream) -> optional<grid>;
+    static auto parse(std::istream& istream) -> std::optional<grid>;
 
     /// Default constructs an empty grid of 81 '.'s.
     grid() { cells_.fill('.'); cells_.back() = '\0'; }
@@ -140,7 +124,7 @@ public:
     auto data() const -> const_pointer { return cells_.data(); }
 
 private:
-    cells_type cells_;
+    cells_type cells_{};
 };
 
 /// Returns `true` if two grids are equal.
@@ -213,10 +197,10 @@ std::ostream& operator<<(std::ostream& os, const grid& g);
 /// Attempts to solve the given grid.
 /// If the solve algorithm fails or the supplied grid contains no solutions,
 /// returns `nullopt`. Otherwise returns the new, completed grid.
-auto solve(const grid& grid_) -> optional<grid>;
+auto solve(const grid& grid_) -> std::optional<grid>;
 
 /// Returns a string (well, `string_view`) representation of the given grid
-inline auto to_string(const grid& grid) -> string_view
+inline auto to_string(const grid& grid) -> std::string_view
 {
     return {grid.data(), 81};
 }
@@ -239,7 +223,7 @@ struct hash<tcb::sudoku::grid>
 
     size_t operator()(const tcb::sudoku::grid& grid) const
     {
-        return hash<tcb::sudoku::string_view>{}(to_string(grid));
+        return hash<string_view>{}(to_string(grid));
     }
     /// @endcond
 };

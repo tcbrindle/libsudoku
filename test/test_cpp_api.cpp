@@ -28,7 +28,7 @@ constexpr auto& empty_soln = "12345678945678912378912345623167489587591236469453
 //constexpr auto& unsolvable = ".....5.8....6.1.43..........1.5........1.6...3.......553.....61........4.........";
 constexpr auto& unsolvable = "111111111........................................................................";
 
-bool equal(tcb::sudoku::string_view sv, const tcb::sudoku::grid& grid)
+bool equal(std::string_view sv, const tcb::sudoku::grid& grid)
 {
     return std::equal(std::begin(sv), std::end(sv),
                       std::begin(grid), std::end(grid));
@@ -41,7 +41,7 @@ bool equal(tcb::sudoku::string_view sv, const tcb::sudoku::grid& grid)
 TEST_CASE("Grids can be parsed from strings", "[parse]")
 {
     const auto grid = tcb::sudoku::grid::parse(solvable);
-    REQUIRE(grid != tcb::sudoku::nullopt);
+    REQUIRE(grid != std::nullopt);
     REQUIRE(equal(solvable, *grid));
 }
 
@@ -52,12 +52,12 @@ TEST_CASE("Grids can be parsed from streams", "[parse]")
     // We should be able to parse multiple grids from streams
     {
         const auto grid = tcb::sudoku::grid::parse(ss);
-        REQUIRE(grid != tcb::sudoku::nullopt);
+        REQUIRE(grid != std::nullopt);
         REQUIRE(equal(solvable, *grid));
     }
     {
         const auto grid = tcb::sudoku::grid::parse(ss);
-        REQUIRE(grid != tcb::sudoku::nullopt);
+        REQUIRE(grid != std::nullopt);
         REQUIRE(equal(solvable, *grid));
     }
 }
@@ -77,14 +77,14 @@ TEST_CASE("Nonsense streams do not get parsed", "[parse]")
 
 TEST_CASE("Short strings do not get parsed", "[parse]")
 {
-    const auto sv = tcb::sudoku::string_view(solvable).substr(0, 80);
+    const auto sv = std::string_view(solvable).substr(0, 80);
     const auto grid = tcb::sudoku::grid::parse(sv);
     REQUIRE_FALSE(grid);
 }
 
 TEST_CASE("Short streams do not get parsed", "[parse]")
 {
-    std::string str{tcb::sudoku::string_view(solvable).substr(0, 80)};
+    std::string str{std::string_view(solvable).substr(0, 80)};
     std::stringstream ss{str};
     const auto grid = tcb::sudoku::grid::parse(ss);
     REQUIRE_FALSE(grid);
