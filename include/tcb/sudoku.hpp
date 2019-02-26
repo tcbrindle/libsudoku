@@ -96,13 +96,13 @@ public:
     void swap(grid& other) { cells_.swap(other.cells_); }
 
     /// Returns the size of the grid, i.e. 81
-    auto size() const -> size_type { return 81; }
+    static constexpr auto size() -> size_type { return 81; }
 
     /// Returns the maximum size of a grid, i.e. 81
-    auto max_size() const -> size_type { return 81; }
+    static constexpr auto max_size() -> size_type { return 81; }
 
     /// Returns whether the grid is empty; this is always `false`
-    auto empty() const -> bool { return false; }
+    static constexpr auto empty() -> bool { return false; }
 
     /// Returns the first element of the grid
     auto front() const -> const_reference { return cells_.front(); }
