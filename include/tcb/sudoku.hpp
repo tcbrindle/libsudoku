@@ -123,65 +123,63 @@ public:
     /// Returns a const pointer to the raw character array in the grid
     auto data() const -> const_pointer { return cells_.data(); }
 
+    /// Returns `true` if two grids are equal.
+    /// @relates grid
+    friend auto operator==(const grid& lhs, const grid& rhs) -> bool
+    {
+        return lhs.cells_ == rhs.cells_;
+    }
+
+    /// Returns `true` if two grids are different.
+    /// @sa operator==(const grid&, const grid&)
+    /// @relates grid
+    friend auto operator!=(const grid& lhs, const grid& rhs) -> bool
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Returns `true` if a grid is "less than" another.
+    /// One grid is considered "less than" another if it has more unknown cells.
+    /// If two grids have the same number of unknown cells then the cells are
+    /// compared lexicographically.
+    /// @relates grid
+    friend auto operator<(const grid& lhs, const grid& rhs) -> bool
+    {
+        const auto a = std::count(std::cbegin(lhs), std::cend(lhs), '.');
+        const auto b = std::count(std::cbegin(rhs), std::cend(rhs), '.');
+        if (a == b) {
+            return lhs.cells_ < rhs.cells_;
+        }
+        return a > b;
+    }
+
+    /// Returns `true` if a grid is "greater than" another
+    /// @sa operator<(const grid&, const grid&)
+    /// @relates grid
+    friend auto operator>(const grid& lhs, const grid& rhs) -> bool
+    {
+        return rhs < lhs;
+    }
+
+    /// @returns `true` if a grid is "less than or equal to" another
+    /// @sa operator<(const grid&, const grid&)
+    /// @relates grid
+    friend auto operator<=(const grid& lhs, const grid& rhs) -> bool
+    {
+        return !(rhs < lhs);
+    }
+
+    /// Returns `true` if a grid is "greater than or equal to" another
+    /// @sa operator<(const grid&, const grid&)
+    /// @relates grid
+    friend auto operator>=(const grid& lhs, const grid& rhs) -> bool
+    {
+        return !(lhs < rhs);
+    }
+
 private:
     cells_type cells_{};
 };
-
-/// Returns `true` if two grids are equal.
-/// @relates grid
-inline bool operator==(const grid& lhs, const grid& rhs)
-{
-    return std::equal(std::begin(lhs), std::end(lhs),
-                      std::begin(rhs), std::end(rhs));
-}
-
-/// Returns `true` if two grids are different.
-/// @sa operator==(const grid&, const grid&)
-/// @relates grid
-inline bool operator!=(const grid& lhs, const grid& rhs)
-{
-    return !(lhs == rhs);
-}
-
-/// Returns `true` if a grid is "less than" another.
-/// One grid is considered "less than" another if it has more unknown cells.
-/// If two grids have the same number of unknown cells then the cells are
-/// compared lexicographically.
-/// @relates grid
-inline bool operator<(const grid& lhs, const grid& rhs)
-{
-    const auto a = std::count(std::cbegin(lhs), std::cend(lhs), '.');
-    const auto b = std::count(std::cbegin(rhs), std::cend(rhs), '.');
-    if (a == b) {
-        return std::lexicographical_compare(std::cbegin(lhs), std::cend(lhs),
-                                            std::cbegin(rhs), std::cend(rhs));
-    }
-    return a > b;
-}
-
-/// Returns `true` if a grid is "greater than" another
-/// @sa operator<(const grid&, const grid&)
-/// @relates grid
-inline bool operator>(const grid& lhs, const grid& rhs)
-{
-    return rhs < lhs;
-}
-
-/// @returns `true` if a grid is "less than or equal to" another
-/// @sa operator<(const grid&, const grid&)
-/// @relates grid
-inline bool operator<=(const grid& lhs, const grid& rhs)
-{
-    return !(rhs < lhs);
-}
-
-/// Returns `true` if a grid is "greater than or equal to" another
-/// @sa operator<(const grid&, const grid&)
-/// @relates grid
-inline bool operator>=(const grid& lhs, const grid& rhs)
-{
-    return !(lhs < rhs);
-}
 
 /// Swaps the contents of `lhs` and `rhs`
 /// @sa tcb::sudoku::grid::swap()
