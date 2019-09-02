@@ -171,7 +171,7 @@ auto grid_to_puzzle(const grid& g) -> std::optional<puzzle_t>
     if (rng::all_of(view, [&] (const auto& pair) {
         return assign(puzzle, pair.first, pair.second - '0');
     })) {
-        return std::move(puzzle);
+        return puzzle;
     }
     return std::nullopt;
 }

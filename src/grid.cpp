@@ -54,7 +54,7 @@ auto grid::parse(std::string_view str) -> std::optional<grid>
 
     auto g = grid{};
     rng::copy(view, rng::begin(g.cells_));
-    return std::move(g);
+    return g;
 }
 
 auto grid::parse(std::istream& istream) -> std::optional<grid>
@@ -86,7 +86,7 @@ auto grid::parse(std::istream& istream) -> std::optional<grid>
         return std::nullopt;
     }
 
-    return std::move(g);
+    return g;
 }
 
 auto operator<<(std::ostream& os, const grid& g) -> std::ostream&
