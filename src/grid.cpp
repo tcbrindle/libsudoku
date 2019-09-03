@@ -25,14 +25,10 @@ SOFTWARE.
 #include <range/v3/algorithm/copy.hpp>
 #include <range/v3/iterator/stream_iterators.hpp>
 #include <range/v3/view/all.hpp>
-#include <range/v3/view/common.hpp>
-#include <range/v3/view/chunk.hpp>
 #include <range/v3/view/filter.hpp>
-#include <range/v3/view/intersperse.hpp>
 #include <range/v3/view/istream.hpp>
-#include <range/v3/view/join.hpp>
-#include <range/v3/view/replace.hpp>
 #include <range/v3/view/take.hpp>
+#include <range/v3/view/transform.hpp>
 
 
 namespace rng = ranges;
@@ -40,11 +36,17 @@ namespace rng = ranges;
 namespace tcb {
 namespace sudoku {
 
+static constexpr auto replace_view = [] (char value, char with) {
+    return rng::views::transform([value, with] (char c) {
+        return c == value ? with : c;
+    });
+};
+
 auto grid::parse(std::string_view str) -> std::optional<grid>
 {
     auto view = rng::views::all(str)
             | rng::views::filter([](char c) { return c == '.' || (c >= '0' && c <= '9'); })
-            | rng::views::replace('0', '.')
+            | replace_view('0', '.')
             | rng::views::take(81);
 
     if (rng::distance(view) < 81) {
@@ -58,22 +60,17 @@ auto grid::parse(std::string_view str) -> std::optional<grid>
 
 auto grid::parse(std::istream& istream) -> std::optional<grid>
 {
-    // Annoyingly in this case, but probably with good reason,
-    // rng::view::filter caches the next value -- which means that in the
-    // case of input iterators, it eats up the next token. There may be a way
-    // around this but I can't think of one right now, so we'll do things the
-    // longwinded way instead
     auto count = 0;
     auto g = grid{};
     auto range = rng::istream_range<char>{istream}
-            | rng::views::replace('0', '.')
-            | rng::views::common;
+        | rng::views::filter([](char c) { return c == '.' || (c >= '0' && c <= '9'); })
+        | replace_view('0', '.')
+        | rng::views::take(81);
 
+    // The above range is single-pass, so we cannot call distance() on it
+    // with out using it up. Instead, we'll manually copy the characters over
+    // and count as we go
     for (char c : range) {
-        if (c != '.' && (c < '1' || c > '9')) {
-            continue;
-        }
-
         g.cells_[count] = c;
 
         if (++count == 81) {
@@ -90,27 +87,27 @@ auto grid::parse(std::istream& istream) -> std::optional<grid>
 
 auto operator<<(std::ostream& os, const grid& g) -> std::ostream&
 {
-    // And now for some fun. What we'd like to do is this:
     //   * after every 9th element, insert a '\n'
     //   * for every 3rd and 6th (but not 9th) element, insert a '|'
     //   * after cells 27 and 54, insert "------+------+------\n"
     //   * after every element not mentioned, insert a ' '.
     //
-    // I'm fully aware that this is a silly way to do it.
-    auto range = rng::views::all(g)
-            | rng::views::chunk(27)
-            | rng::views::transform([] (auto&& third) {
-                return rng::views::all(third)
-                    | rng::views::chunk(9)
-                    | rng::views::transform([](auto&& row) {
-                        return rng::views::all(row)
-                            | rng::views::chunk(3)
-                            | rng::views::join('|')
-                            | rng::views::intersperse(' '); })
-                    | rng::views::join('\n'); })
-            | rng::views::join(std::string_view("\n------+-------+------\n"));
+    // This was much more fun with ranges...
+    for (std::size_t i = 0; i < g.size(); i++) {
+        if (i == 0) {
+            // pass
+        } else if (i % 27  == 0) {
+            os << "\n------+-------+------\n";
+        } else if (i % 9 == 0) {
+            os << '\n';
+        } else if (i % 3  == 0) {
+            os << " | ";
+        } else {
+            os << ' ';
+        }
+        os << g[i];
+    }
 
-    rng::copy(range, rng::ostream_iterator<>(os));
 
     return os;
 }
