@@ -23,30 +23,29 @@ SOFTWARE.
 #include <tcb/sudoku.hpp>
 
 #include <range/v3/algorithm/copy.hpp>
-#include <range/v3/istream_range.hpp>
+#include <range/v3/iterator/stream_iterators.hpp>
 #include <range/v3/view/all.hpp>
-#include <range/v3/view/bounded.hpp>
+#include <range/v3/view/common.hpp>
 #include <range/v3/view/chunk.hpp>
+#include <range/v3/view/filter.hpp>
 #include <range/v3/view/intersperse.hpp>
-#include <range/v3/view/iota.hpp>
+#include <range/v3/view/istream.hpp>
 #include <range/v3/view/join.hpp>
-#include <range/v3/view/remove_if.hpp>
 #include <range/v3/view/replace.hpp>
 #include <range/v3/view/take.hpp>
-#include <range/v3/view/zip.hpp>
 
 
-namespace rng = ranges::v3;
+namespace rng = ranges;
 
 namespace tcb {
 namespace sudoku {
 
 auto grid::parse(std::string_view str) -> std::optional<grid>
 {
-    auto view = rng::view::all(str)
-            | rng::view::remove_if([](char c) { return c != '.' && (c < '0' || c > '9'); })
-            | rng::view::replace('0', '.')
-            | rng::view::take(81);
+    auto view = rng::views::all(str)
+            | rng::views::filter([](char c) { return c == '.' || (c >= '0' && c <= '9'); })
+            | rng::views::replace('0', '.')
+            | rng::views::take(81);
 
     if (rng::distance(view) < 81) {
         return std::nullopt;
@@ -60,15 +59,15 @@ auto grid::parse(std::string_view str) -> std::optional<grid>
 auto grid::parse(std::istream& istream) -> std::optional<grid>
 {
     // Annoyingly in this case, but probably with good reason,
-    // rng::view::remove_if caches the next value -- which means that in the
+    // rng::view::filter caches the next value -- which means that in the
     // case of input iterators, it eats up the next token. There may be a way
     // around this but I can't think of one right now, so we'll do things the
     // longwinded way instead
     auto count = 0;
     auto g = grid{};
     auto range = rng::istream_range<char>{istream}
-            | rng::view::replace('0', '.')
-            | rng::view::bounded;
+            | rng::views::replace('0', '.')
+            | rng::views::common;
 
     for (char c : range) {
         if (c != '.' && (c < '1' || c > '9')) {
@@ -98,18 +97,18 @@ auto operator<<(std::ostream& os, const grid& g) -> std::ostream&
     //   * after every element not mentioned, insert a ' '.
     //
     // I'm fully aware that this is a silly way to do it.
-    auto range = rng::view::all(g)
-            | rng::view::chunk(27)
-            | rng::view::transform([] (auto&& third) {
-                return rng::view::all(third)
-                    | rng::view::chunk(9)
-                    | rng::view::transform([](auto&& row) {
-                        return rng::view::all(row)
-                            | rng::view::chunk(3)
-                            | rng::view::join('|')
-                            | rng::view::intersperse(' '); })
-                    | rng::view::join('\n'); })
-            | rng::view::join(std::string_view("\n------+-------+------\n"));
+    auto range = rng::views::all(g)
+            | rng::views::chunk(27)
+            | rng::views::transform([] (auto&& third) {
+                return rng::views::all(third)
+                    | rng::views::chunk(9)
+                    | rng::views::transform([](auto&& row) {
+                        return rng::views::all(row)
+                            | rng::views::chunk(3)
+                            | rng::views::join('|')
+                            | rng::views::intersperse(' '); })
+                    | rng::views::join('\n'); })
+            | rng::views::join(std::string_view("\n------+-------+------\n"));
 
     rng::copy(range, rng::ostream_iterator<>(os));
 

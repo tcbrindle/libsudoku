@@ -25,12 +25,12 @@ SOFTWARE.
 
 #include <range/v3/algorithm/all_of.hpp>
 #include <range/v3/algorithm/for_each.hpp>
-#include <range/v3/algorithm/min_element.hpp>
+#include <range/v3/algorithm/min.hpp>
 #include <range/v3/algorithm/transform.hpp>
-#include <range/v3/front.hpp>
+#include <range/v3/range/operations.hpp>
 #include <range/v3/view/all.hpp>
+#include <range/v3/view/filter.hpp>
 #include <range/v3/view/iota.hpp>
-#include <range/v3/view/remove_if.hpp>
 #include <range/v3/view/transform.hpp>
 #include <range/v3/view/zip.hpp>
 
@@ -42,7 +42,7 @@ SOFTWARE.
 namespace tcb {
 namespace sudoku {
 
-namespace rng = ranges::v3;
+namespace rng = ranges;
 
 namespace {
 
@@ -50,7 +50,7 @@ auto enumerate()
 {
     return rng::make_pipeable([](auto&& range) {
         using range_t = decltype(range);
-        return rng::view::zip(rng::view::ints, std::forward<range_t>(range));
+        return rng::views::zip(rng::views::iota(0), std::forward<range_t>(range));
     });
 }
 
@@ -113,8 +113,8 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool;
 
 auto assign(puzzle_t& p, int index, int value) -> bool
 {
-    auto is_value = [value] (int i) { return i == value; };
-    return rng::all_of(rng::view::ints(1, 10) | rng::view::remove_if(is_value),
+    auto not_value = [value] (int i) { return i != value; };
+    return rng::all_of(rng::views::iota(1, 10) | rng::views::filter(not_value),
                        [&] (int i) { return eliminate(p, index, i); });
 }
 
@@ -144,8 +144,8 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
     // If a unit u is reduced to only one place for a value, then put it there.
     const auto& units = { get_row(index), get_column(index), get_box(index) };
     return rng::all_of(units, [&] (const auto& u) {
-        auto places = rng::view::all(u) | rng::view::remove_if([&](auto idx) {
-            return !p[idx].could_be(value);
+        auto places = rng::views::all(u) | rng::views::filter([&](auto idx) {
+            return p[idx].could_be(value);
         });
 
         const auto size = rng::distance(places);
@@ -163,10 +163,10 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
 auto grid_to_puzzle(const grid& g) -> std::optional<puzzle_t>
 {
     auto puzzle = puzzle_t{};
-    auto view = rng::view::all(g)
+    auto view = rng::views::all(g)
                 | enumerate()
-                | rng::view::remove_if([] (const auto& pair) {
-        return pair.second == '.';
+                | rng::views::filter([] (const auto& pair) {
+        return pair.second != '.';
     });
     if (rng::all_of(view, [&] (const auto& pair) {
         return assign(puzzle, pair.first, pair.second - '0');
@@ -198,19 +198,19 @@ auto do_solve(const puzzle_t& p) -> std::optional<puzzle_t>
     }
 
     // Otherwise, make a list of indices that have more than one possibility
-    auto non_fixed_cells = rng::view::ints(0, 81) | rng::view::remove_if([&](int i) {
-        return p[i].count() == 1;
+    auto non_fixed_cells = rng::views::iota(0, 81) | rng::views::filter([&](int i) {
+        return p[i].count() != 1;
     });
 
     // Choose one of the elements with the fewest possibilities
-    auto min_idx = *rng::min_element(non_fixed_cells, [&](int idx1, int idx2) {
+    auto min_idx = rng::min(non_fixed_cells, [&](int idx1, int idx2) {
         return p[idx1].count() < p[idx2].count();
     });
 
     // Now try each value in the range [1, 9] in the cell at min_idx
-    auto maybe_solutions = rng::view::ints(1, 10)
-            | rng::view::remove_if([&](int i) { return !p[min_idx].could_be(i); })
-            | rng::view::transform([&] (int i) {
+    auto maybe_solutions = rng::views::iota(1, 10)
+            | rng::views::filter([&](int i) { return p[min_idx].could_be(i); })
+            | rng::views::transform([&] (int i) {
                 // Take a new copy of the puzzle and try to assign i to the chosen index
                 auto p_copy = p;
                 // if the assignment succeeded (generated no contradictions),
@@ -221,7 +221,7 @@ auto do_solve(const puzzle_t& p) -> std::optional<puzzle_t>
                 return std::optional<puzzle_t>{};
             });
 
-    // FIXME: We should be able to filter the above view with view::remove_if(),
+    // FIXME: We should be able to filter the above view with view::filter(),
     // and then just use `if (begin(solns) != end(solns)) { return front(solns) }`
     // here. But that seems to be very much slower than using a for loop, even
     // though it should be equivalent.
