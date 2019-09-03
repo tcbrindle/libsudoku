@@ -22,16 +22,10 @@ SOFTWARE.
 
 #include <tcb/sudoku.hpp>
 
-#include <range/v3/algorithm/copy.hpp>
-#include <range/v3/iterator/stream_iterators.hpp>
-#include <range/v3/view/all.hpp>
-#include <range/v3/view/filter.hpp>
-#include <range/v3/view/istream.hpp>
-#include <range/v3/view/take.hpp>
-#include <range/v3/view/transform.hpp>
+#include "nanorange.hpp"
 
 
-namespace rng = ranges;
+namespace rng = nano::ranges;
 
 namespace tcb {
 namespace sudoku {
@@ -62,7 +56,7 @@ auto grid::parse(std::istream& istream) -> std::optional<grid>
 {
     auto count = 0;
     auto g = grid{};
-    auto range = rng::istream_range<char>{istream}
+    auto range = rng::istream_view<char>(istream)
         | rng::views::filter([](char c) { return c == '.' || (c >= '0' && c <= '9'); })
         | replace_view('0', '.')
         | rng::views::take(81);

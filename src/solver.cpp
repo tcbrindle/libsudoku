@@ -23,14 +23,7 @@ SOFTWARE.
 #include <tcb/sudoku.hpp>
 #include "tables.hpp"
 
-#include <range/v3/algorithm/all_of.hpp>
-#include <range/v3/algorithm/for_each.hpp>
-#include <range/v3/algorithm/min.hpp>
-#include <range/v3/algorithm/transform.hpp>
-#include <range/v3/view/all.hpp>
-#include <range/v3/view/filter.hpp>
-#include <range/v3/view/iota.hpp>
-#include <range/v3/view/transform.hpp>
+#include "nanorange.hpp"
 
 #ifdef _MSC_VER
 #include <intrin.h> 
@@ -40,7 +33,7 @@ SOFTWARE.
 namespace tcb {
 namespace sudoku {
 
-namespace rng = ranges;
+namespace rng = nano::ranges;
 
 namespace {
 
@@ -67,9 +60,9 @@ const auto& get_box(int index)
 struct cell_t {
     cell_t() : bits(0b111'111'111) {}
 
-    bool could_be(int i) const { return (bits & (1 << (i - 1))) != 0; }
+    bool could_be(int i) const { return (bits & (1u << (i - 1))) != 0; }
 
-    void remove(int i) { bits &= ~(1 << (i - 1)); }
+    void remove(int i) { bits &= ~(1u << (i - 1)); }
 
     auto count() const
     {
