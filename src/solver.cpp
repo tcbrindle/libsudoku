@@ -27,12 +27,10 @@ SOFTWARE.
 #include <range/v3/algorithm/for_each.hpp>
 #include <range/v3/algorithm/min.hpp>
 #include <range/v3/algorithm/transform.hpp>
-#include <range/v3/range/operations.hpp>
 #include <range/v3/view/all.hpp>
 #include <range/v3/view/filter.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/transform.hpp>
-#include <range/v3/view/zip.hpp>
 
 #ifdef _MSC_VER
 #include <intrin.h> 
@@ -45,14 +43,6 @@ namespace sudoku {
 namespace rng = ranges;
 
 namespace {
-
-auto enumerate()
-{
-    return rng::make_pipeable([](auto&& range) {
-        using range_t = decltype(range);
-        return rng::views::zip(rng::views::iota(0), std::forward<range_t>(range));
-    });
-}
 
 const auto& get_peers(int index)
 {
@@ -154,7 +144,7 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
             return false;
         }
         if (size == 1) {
-            return assign(p, rng::front(places), value);
+            return assign(p, places.front(), value);
         }
         return true;
     });
@@ -163,17 +153,18 @@ auto eliminate(puzzle_t& p, int index, int value) -> bool
 auto grid_to_puzzle(const grid& g) -> std::optional<puzzle_t>
 {
     auto puzzle = puzzle_t{};
-    auto view = rng::views::all(g)
-                | enumerate()
-                | rng::views::filter([] (const auto& pair) {
-        return pair.second != '.';
-    });
-    if (rng::all_of(view, [&] (const auto& pair) {
-        return assign(puzzle, pair.first, pair.second - '0');
-    })) {
-        return puzzle;
+
+    int idx = 0;
+    for (char c : g) {
+        if (c != '.') {
+            if (!assign(puzzle, idx, c - '0')) {
+                return std::nullopt;
+            }
+        }
+        ++idx;
     }
-    return std::nullopt;
+
+    return puzzle;
 }
 
 auto puzzle_to_grid(const puzzle_t& p) -> grid
